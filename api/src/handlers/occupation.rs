@@ -1,6 +1,5 @@
 use axum::{extract::Path, http::StatusCode, Extension, Json};
 use sqlx::PgPool;
-
 use crate::models::occupation::Occupation;
 
 pub async fn get_occupations_by_id(
@@ -28,7 +27,14 @@ pub async fn get_occupations_by_id(
             }
         })?;
 
-    Ok(Json(occupations))
+    let mut occupations_with_ids: Vec<Occupation> = Vec::new();
+    for (i, occupation) in occupations.iter().enumerate() {
+        let mut occupation_copy = occupation.clone();
+        occupation_copy.id = Some((i + 1) as i32);
+        occupations_with_ids.push(occupation_copy);
+    }
+
+    Ok(Json(occupations_with_ids))
 }
 
 pub async fn get_occupations_by_name(
@@ -54,5 +60,12 @@ pub async fn get_occupations_by_name(
             }
         })?;
 
-    Ok(Json(occupations))
+    let mut occupations_with_ids: Vec<Occupation> = Vec::new();
+    for (i, occupation) in occupations.iter().enumerate() {
+        let mut occupation_copy = occupation.clone();
+        occupation_copy.id = Some((i + 1) as i32);
+        occupations_with_ids.push(occupation_copy);
+    }
+
+    Ok(Json(occupations_with_ids))
 }

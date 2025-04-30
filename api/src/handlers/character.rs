@@ -43,6 +43,13 @@ pub async fn get_character_by_id(
             }
         })?;
 
+    let mut occupations_with_ids: Vec<Occupation> = Vec::new();
+    for (i, occupation) in occupations.iter().enumerate() {
+        let mut occupation_copy = occupation.clone();
+        occupation_copy.id = Some((i + 1) as i32);
+        occupations_with_ids.push(occupation_copy);
+    }
+
     let relation_sql = r#"
         SELECT
           c2.name AS name,
@@ -65,7 +72,7 @@ pub async fn get_character_by_id(
             }
         })?;
     
-    character.occupations = Some(occupations);
+    character.occupations = Some(occupations_with_ids);
     character.relations = Some(relations);
 
     Ok(Json(character))
@@ -92,6 +99,33 @@ pub async fn get_character_by_name(
                 _ => StatusCode::INTERNAL_SERVER_ERROR,
             }
         })?;
+
+    let occupation_sql = r#"
+        SELECT
+            o.occupation AS name
+        FROM occupations o
+        JOIN characters c ON c.id = o.character_id
+        WHERE c.name = $1
+    "#;
+
+    let occupations: Vec<Occupation> = sqlx::query_as(occupation_sql)
+        .bind(&name)
+        .fetch_all(&pool)
+        .await
+        .map_err(|err| {
+            eprintln!("{}", err);
+            match err {
+                sqlx::Error::RowNotFound => StatusCode::NOT_FOUND,
+                _ => StatusCode::INTERNAL_SERVER_ERROR,
+            }
+        })?;
+
+    let mut occupations_with_ids: Vec<Occupation> = Vec::new();
+    for (i, occupation) in occupations.iter().enumerate() {
+        let mut occupation_copy = occupation.clone();
+        occupation_copy.id = Some((i + 1) as i32);
+        occupations_with_ids.push(occupation_copy);
+    }
 
     let relation_sql = r#"
         SELECT
