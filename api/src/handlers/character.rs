@@ -8,7 +8,7 @@ pub async fn get_character_by_id(
 ) -> Result<Json<Character>, StatusCode> {
     let id_int: i32 = id.parse().map_err(|_| StatusCode::BAD_REQUEST)?;
     let sql = r#"
-        SELECT id, name, gender, debut, description 
+        SELECT id, name, gender, debut, appearance, description
         FROM characters
         WHERE id = $1
     "#;
@@ -80,12 +80,14 @@ pub async fn get_character_by_id(
 
 pub async fn get_character_by_name(
     Extension(pool): Extension<PgPool>,
-    Path(name): Path<String>
+    Path(raw_name): Path<String>
 ) -> Result<Json<Character>, StatusCode> {
+    let name = raw_name.replace("-", " ");
+
     let sql = r#"
-        SELECT id, name, gender, debut, description 
+        SELECT id, name, gender, debut, appearance, description 
         FROM characters
-        WHERE name = $1
+        WHERE LOWER(name) = LOWER($1)
     "#;
 
     let mut character: Character = sqlx::query_as(sql)
@@ -105,7 +107,7 @@ pub async fn get_character_by_name(
             o.occupation AS name
         FROM occupations o
         JOIN characters c ON c.id = o.character_id
-        WHERE c.name = $1
+        WHERE LOWER(c.name) = LOWER($1)
     "#;
 
     let occupations: Vec<Occupation> = sqlx::query_as(occupation_sql)
@@ -134,7 +136,7 @@ pub async fn get_character_by_name(
         FROM relations r
         JOIN characters c1 ON c1.id = r.character_id
         JOIN characters c2 ON c2.id = r.relation_id
-        WHERE c1.name = $1
+        WHERE LOWER(c1.name) = $1
     "#;
 
     let relations: Vec<Relation> = sqlx::query_as(relation_sql)

@@ -7,10 +7,12 @@ pub struct Character {
     pub id: i64,
     pub name: String,
     pub gender: String,
+    pub appearance: Option<String>,
     pub debut: String,
+    pub description: Option<String>,
+    pub sprite: String,
     #[sqlx(skip)]
     pub occupations: Option<Vec<Occupation>>,
     #[sqlx(skip)]
     pub relations: Option<Vec<Relation>>,
-    pub description: Option<String>,
 }
