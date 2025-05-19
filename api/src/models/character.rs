@@ -10,7 +10,7 @@ pub struct Character {
     pub appearance: Option<String>,
     pub debut: String,
     pub description: Option<String>,
-    pub sprite: String,
+    pub image_url: String,
     #[sqlx(skip)]
     pub occupations: Option<Vec<Occupation>>,
     #[sqlx(skip)]

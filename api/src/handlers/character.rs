@@ -8,7 +8,7 @@ pub async fn get_character_by_id(
 ) -> Result<Json<Character>, StatusCode> {
     let id_int: i32 = id.parse().map_err(|_| StatusCode::BAD_REQUEST)?;
     let sql = r#"
-        SELECT id, name, gender, debut, appearance, description
+        SELECT id, name, gender, debut, appearance, description, image_url
         FROM characters
         WHERE id = $1
     "#;
@@ -85,7 +85,7 @@ pub async fn get_character_by_name(
     let name = raw_name.replace("-", " ");
 
     let sql = r#"
-        SELECT id, name, gender, debut, appearance, description 
+        SELECT id, name, gender, debut, appearance, description, image_url
         FROM characters
         WHERE LOWER(name) = LOWER($1)
     "#;
